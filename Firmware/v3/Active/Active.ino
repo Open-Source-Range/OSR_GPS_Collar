@@ -49,4 +49,5 @@ void loop()
       collar.GPSPowerUp();
     }
   }
+  collar.Blink(_REDLED);
 }
