@@ -1,7 +1,8 @@
 #include <NMEAGPS.h>
 #include <SD.h>
 #include <SPI.h>
-
+#include <avr/wdt.h>
+#include <avr/sleep.h>
 
 #define LED_PIN (5)
 #define RXPin (4)
@@ -20,25 +21,27 @@
 void LoadSettings();
 void Blink(int pin);
 void SystemInitialize();
-void Sleep(int MinutesToSleep);
+void Sleeping(int MinutesToSleep);
 int printGPSInfo();
 
 NMEAGPS GPS;
 gps_fix fix;
 NeoSWSerial gpsPort(ARDUINO_GPS_TX, ARDUINO_GPS_RX);
-      int SHORTSLEEP=10;
+      int SHORTSLEEP=1;
       int LONGSLEEP=8;
-      int BEGINNIGHT=25;
-      int ENDNIGHT=25;
+      uint8_t BEGINNIGHT=2;
       int GPS_BAUD=9600;
-      int ENDMONTH=-1;
-      int ENDDAY=-1;
-      int          waitingForFix = 1;
+      char ENDMONTH="-1";
+      char ENDDAY="-1";
+      int  waitingForFix = 1;
 const unsigned long GPS_TIMEOUT   = 120000; // 2 minutes
       unsigned long GPS_TIME      = 0;
       int turnGPSoff = 0;
       File dataFile;
-
+ISR (WDT_vect)
+{
+  MCUSR = 0;
+}
 void setup() {
   SystemInitialize();
   //LoadSettings();
@@ -46,48 +49,45 @@ void setup() {
   gpsPort.begin(GPS_BAUD);
   Blink(REDLED);
   Blink(GREENLED);
-  digitalWrite(GREENLED,HIGH);
-  digitalWrite(REDLED,HIGH);
-  delay(50);
-  Blink(REDLED);
-  Blink(GREENLED);
-  
 }
 
 
 void loop() {
-  //digitalWrite(GREENLED,!digitalRead(GREENLED)); //heartbeat
-    
+  digitalWrite(GREENLED,!digitalRead(GREENLED)); //heartbeat
+  digitalWrite(REDLED,!digitalRead(REDLED)); //heartbeat  
   // Is a GPS fix available?*******************
   if (GPS.available( gpsPort )) 
   {
+    digitalWrite(REDLED,LOW);
+    digitalWrite(GREENLED,LOW);
     fix = GPS.read();
     Blink(GREENLED);
     if (waitingForFix) 
     {
-      //Blink(REDLED);
-        if (fix.valid.location&&fix.valid.date&&fix.valid.time)
-        {
-          printGPSInfo();//Attempt to print
-          waitingForFix = 0;
-          turnGPSoff    = 1;
-        }
-        else
-        {
-          Blink(REDLED);
-        }
-      //Serial.println( millis() - GPS_TIME ); // DEBUG
+      if (fix.valid.location&&fix.valid.date&&fix.valid.time)
+      {
+        Blink(GREENLED);
+        printGPSInfo();//Attempt to print
+        waitingForFix = 0;
+        turnGPSoff    = 1;
+      }
+      else
+      {
+        Blink(REDLED);
+      }
     }
   }
   //***************************************
 
   
   // Have we waited too long for a GPS fix?
-  if (waitingForFix && (millis() - GPS_TIME > GPS_TIMEOUT)) {
+  if (waitingForFix && (millis() - GPS_TIME > GPS_TIMEOUT)) 
+  {
     waitingForFix = 0;
     turnGPSoff    = 1;
-    Blink(REDLED);
-    Blink(REDLED);
+    digitalWrite(REDLED,HIGH);
+    delay(2000);
+    digitalWrite(REDLED,LOW);
     dataFile = SD.open("gpslog.csv", FILE_WRITE); //open SD
     while(!dataFile)
     {
@@ -100,14 +100,7 @@ void loop() {
     {
     dataFile.println("0,0,0,0,0,0,0,0,0"); //print a blank
     dataFile.close();
-    }
-    else 
-    {
-      //Blink(REDLED);
-      //Blink(REDLED);
-
-    }
-    
+    }   
  }
 
 //******************************************
@@ -115,31 +108,32 @@ void loop() {
  //Sleep 
   if (turnGPSoff) 
   {
+    gpsPort.end();
     digitalWrite(GPSpower, LOW);
     //digitalWrite(REDLED,HIGH);
-    /*if((int)fix.dateTime.month==ENDMONTH) Removed for now, plan to re-add after testing confirms this is not the error
-      if((int)fix.dateTime.day==ENDDAY)
+    /*if(fix.dateTime.month==ENDMONTH) Removed for now, plan to re-add after testing confirms this is not the error
+      if(fix.dateTime.day==ENDDAY)
       {
         while(1)
         {
           //sleep forever
           Blink(GREENLED);
           Blink(REDLED);
-          Sleep(1);
+          Sleeping(1);
         }
       }*/
       
-    if((int)fix.dateTime.hours>=BEGINNIGHT&&(int)fix.dateTime.hours<=ENDNIGHT)
+    if(fix.dateTime.hours==BEGINNIGHT)
     {
-      Sleep(60*LONGSLEEP);
+      Sleeping(60*LONGSLEEP);
     }
     else
     {
-      Sleep(SHORTSLEEP);
+      Sleeping(SHORTSLEEP);
     }
     digitalWrite(GPSpower,HIGH);
     Blink(GREENLED);
-     
+    gpsPort.begin(GPS_BAUD); 
     waitingForFix = 1;
     turnGPSoff    = 0;
     GPS_TIME=millis();
@@ -147,7 +141,6 @@ void loop() {
 
 
   //******************************
-  delay(100);
 } // loop
 
 
@@ -162,11 +155,11 @@ int printGPSInfo()
       delay(200);
       SD.begin(SDCHIPSELECT);
       dataFile = SD.open("gpslog.csv", FILE_WRITE);
-      //Blink(REDLED);
+      Blink(REDLED);
     }
     if (dataFile)
     {
-      Blink(GREENLED); 
+      
       dataFile.print(String(fix.dateTime.year));
       dataFile.print(",");
       dataFile.print(String(fix.dateTime.month));
@@ -179,39 +172,34 @@ int printGPSInfo()
       dataFile.print(",");
       dataFile.print(String(fix.dateTime.seconds));
       dataFile.print(",");
-
-
       dataFile.print(String(fix.valid.satellites));
       dataFile.print(",");
       dataFile.print(fix.latitude(),10);dataFile.print(",");
       dataFile.println(fix.longitude(),10);
       dataFile.close();
-
       return 1;
     }
-  else
-  {
-    digitalWrite(REDLED,HIGH);
-    digitalWrite(GREENLED,HIGH);
-    delay(500);
-    digitalWrite(REDLED,LOW);
-    digitalWrite(GREENLED,LOW);
-    return 0;
-  }
 }
 
-void Sleep(int MinutesToSleep)
+void Sleeping(int MinutesToSleep)
 {
-   for(int sec=0, minutes=0;minutes<MinutesToSleep;sec+=8) //Actual waiting happens here
-                {
-                  //enterSleep();
-                  delay(8000);
-                  if(sec>=60)
-                  {
-                    minutes++;
-                    sec=0;
-                  }
-                }
+  sei();
+  for(int sec=0,i=MinutesToSleep;i>0;sec+=8) //Actual waiting happens here
+  {
+    MCUSR = 0;
+    noInterrupts();
+    sleep_enable();
+    interrupts();
+    sleep_cpu();
+    sleep_disable();
+    if(sec>=60)
+    {
+      i--;
+      sec=0;
+    }
+    
+  }
+  cli();
 }
 
 void Blink(int pin)
@@ -221,7 +209,7 @@ void Blink(int pin)
   digitalWrite(pin,HIGH);
   delay(100);
   digitalWrite(pin,LOW);
-  delay(100);
+
 
 }
 
@@ -232,16 +220,22 @@ void SystemInitialize()
   pinMode(GREENLED,OUTPUT);
   if (!SD.begin(SDCHIPSELECT)) // see if the card is present and can be initialized, also sets the object to hold onto that chip select pin
   {  
-    //Serial.println("SD fail"); //Tell PC, can be commented out
-    //Serial.println("Halting...");
-    digitalWrite(GREENLED,LOW); 
-    digitalWrite(REDLED,HIGH); 
     SD.end();
     while(1)
     {
       Blink(REDLED);
     }
   }
+  ADCSRA = 0;
+  /*** Setup the WDT ***/
+  cli(); //disable interrupts
+  wdt_reset(); //reset wdt 
+  WDTCSR = (1<<WDCE)|(1<<WDE); //enable wdt interrupt
+  WDTCSR = bit (WDIE) | bit (WDP3) | bit (WDP0);
+  //sei();//allow interrupts.
+  //interrupts will be allowed during sleep, but disabled elsewhere to avoid clashing
+  sleep_disable();
+  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
 }
 
 void LoadSettings()
@@ -276,7 +270,6 @@ void LoadSettings()
     BEGINNIGHT=NumFromSD();
     //Serial.print("Night (24-hour): ");
     //Serial.println(BEGINNIGHT);
-    ENDNIGHT=NumFromSD();
     //Serial.print("Day (24-hour): ");
     //Serial.println(ENDNIGHT);
     //DESIREDHDOP=NumFromSD();
