@@ -28,19 +28,19 @@ NMEAGPS GPS;
 gps_fix fix;
 NeoSWSerial gpsPort(ARDUINO_GPS_TX, ARDUINO_GPS_RX);
       int SHORTSLEEP=1;
-      int LONGSLEEP=8;
-      uint8_t BEGINNIGHT=2;
+      int LONGSLEEP=10;//up at 6
+      uint8_t BEGINNIGHT=4;//8pm
       int GPS_BAUD=9600;
       char ENDMONTH="-1";
       char ENDDAY="-1";
       int  waitingForFix = 1;
-const unsigned long GPS_TIMEOUT   = 120000; // 2 minutes
+const unsigned long GPS_TIMEOUT   = 2000; //  seconds
       unsigned long GPS_TIME      = 0;
       int turnGPSoff = 0;
       File dataFile;
 ISR (WDT_vect)
 {
-  MCUSR = 0;
+   wdt_reset();
 }
 void setup() {
   SystemInitialize();
@@ -48,32 +48,42 @@ void setup() {
   digitalWrite(GPSpower,HIGH);
   gpsPort.begin(GPS_BAUD);
   Blink(REDLED);
-  Blink(GREENLED);
+  while (waitingForFix) 
+  {
+    fix = GPS.read();
+      if (fix.valid.location&&fix.valid.date&&fix.valid.time)
+      {
+        //Blink(GREENLED);
+        printGPSInfo();//Attempt to print
+        waitingForFix = 0;
+        turnGPSoff    = 1;
+      }
+  }
+  digitalWrite(GREENLED,HIGH);
 }
 
 
 void loop() {
-  digitalWrite(GREENLED,!digitalRead(GREENLED)); //heartbeat
-  digitalWrite(REDLED,!digitalRead(REDLED)); //heartbeat  
+  //digitalWrite(GREENLED,!digitalRead(GREENLED)); //heartbeat
+  //digitalWrite(REDLED,!digitalRead(REDLED)); //heartbeat  
   // Is a GPS fix available?*******************
   if (GPS.available( gpsPort )) 
   {
-    digitalWrite(REDLED,LOW);
-    digitalWrite(GREENLED,LOW);
+    //digitalWrite(REDLED,LOW);
+    //digitalWrite(GREENLED,LOW);
     fix = GPS.read();
-    Blink(GREENLED);
     if (waitingForFix) 
     {
       if (fix.valid.location&&fix.valid.date&&fix.valid.time)
       {
-        Blink(GREENLED);
+        //Blink(GREENLED);
         printGPSInfo();//Attempt to print
         waitingForFix = 0;
         turnGPSoff    = 1;
       }
       else
       {
-        Blink(REDLED);
+        //Blink(REDLED);
       }
     }
   }
@@ -85,9 +95,9 @@ void loop() {
   {
     waitingForFix = 0;
     turnGPSoff    = 1;
-    digitalWrite(REDLED,HIGH);
-    delay(2000);
-    digitalWrite(REDLED,LOW);
+    //digitalWrite(REDLED,HIGH);
+    //delay(2000);
+    //digitalWrite(REDLED,LOW);
     dataFile = SD.open("gpslog.csv", FILE_WRITE); //open SD
     while(!dataFile)
     {
@@ -129,10 +139,15 @@ void loop() {
     }
     else
     {
-      Sleeping(SHORTSLEEP);
+      MCUSR = 0;
+      sleep_enable();
+      interrupts();
+      sleep_cpu();
+      sleep_disable();
+      noInterrupts();
     }
     digitalWrite(GPSpower,HIGH);
-    Blink(GREENLED);
+    //Blink(GREENLED);
     gpsPort.begin(GPS_BAUD); 
     waitingForFix = 1;
     turnGPSoff    = 0;
@@ -155,7 +170,7 @@ int printGPSInfo()
       delay(200);
       SD.begin(SDCHIPSELECT);
       dataFile = SD.open("gpslog.csv", FILE_WRITE);
-      Blink(REDLED);
+      //Blink(REDLED);
     }
     if (dataFile)
     {
@@ -183,15 +198,14 @@ int printGPSInfo()
 
 void Sleeping(int MinutesToSleep)
 {
-  sei();
   for(int sec=0,i=MinutesToSleep;i>0;sec+=8) //Actual waiting happens here
   {
     MCUSR = 0;
-    noInterrupts();
     sleep_enable();
     interrupts();
     sleep_cpu();
     sleep_disable();
+    noInterrupts();
     if(sec>=60)
     {
       i--;
@@ -199,7 +213,7 @@ void Sleeping(int MinutesToSleep)
     }
     
   }
-  cli();
+ 
 }
 
 void Blink(int pin)
@@ -215,6 +229,7 @@ void Blink(int pin)
 
 void SystemInitialize()
 {
+
   pinMode(GPSpower, OUTPUT);
   pinMode(REDLED,OUTPUT);
   pinMode(GREENLED,OUTPUT);
@@ -228,11 +243,9 @@ void SystemInitialize()
   }
   ADCSRA = 0;
   /*** Setup the WDT ***/
-  cli(); //disable interrupts
   wdt_reset(); //reset wdt 
   WDTCSR = (1<<WDCE)|(1<<WDE); //enable wdt interrupt
   WDTCSR = bit (WDIE) | bit (WDP3) | bit (WDP0);
-  //sei();//allow interrupts.
   //interrupts will be allowed during sleep, but disabled elsewhere to avoid clashing
   sleep_disable();
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
@@ -287,7 +300,7 @@ void LoadSettings()
   {
     //Serial.println("Settings not found, using default.");
   }
-    dataFile.close();
+  dataFile.close();
   
 }
 
