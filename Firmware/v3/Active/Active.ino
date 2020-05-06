@@ -9,7 +9,7 @@
 #define TXPin (3)
 #define LED1 (5)
 #define LED2 (6)
-#define GPSpower (2)
+#define GPSpower (2) //V3 boards: 2
 #define SDCHIPSELECT (8)
 #define GREENLED (LED1)
 #define REDLED (LED2)
