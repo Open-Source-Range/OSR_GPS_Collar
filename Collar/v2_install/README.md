@@ -9,6 +9,15 @@
 
  ![](LED_lights.png)
 
+ __Valid LED Boot Sequence__
+
+ ![Valid LED Boot sequence](boot_sequence.gif)
+
+ __SD Card Error__
+
+ ![SD Card Erorr Lights](SD_card_error.gif)
+
+
 3.	Slip the device and battery into the housing so that the GPS antenna is facing away from the battery and away from the collar.
 
  ![](device_in_collar.png)
