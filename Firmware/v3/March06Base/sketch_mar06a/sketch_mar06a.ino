@@ -26,32 +26,23 @@ int printGPSInfo(int);
 NMEAGPS GPS;
 gps_fix fix;
 NeoSWSerial gpsPort(ARDUINO_GPS_TX, ARDUINO_GPS_RX);
-      int SHORTSLEEP=1;  // in minutes
-      int LONGSLEEP=8;
-      int BEGINNIGHT=25;
-      int ENDNIGHT=25;
-      int GPS_BAUD=9600;
-      int ENDMONTH=-1;
-      int ENDDAY=-1;
-      int          waitingForFix = 1;
-const unsigned long GPS_TIMEOUT   = 60000; // 1 minutes
-      unsigned long GPS_TIME      = 0;
-      int turnGPSoff = 0;
-      File dataFile;
+uint8_t SHORTSLEEP=20;  // in minutes
+uint8_t LONGSLEEP=8;
+uint8_t BEGINNIGHT=25;
+uint8_t ENDNIGHT=25;
+int GPS_BAUD=9600;
+uint8_t ENDMONTH=-1;
+uint8_t ENDDAY=-1;
+unsigned long GPS_TIMEOUT   = 50; // 1 minutes
+unsigned long GPS_TIME      = 0;
+uint8_t turnGPSoff = 0;
+uint8_t waitingForFix = 1;
+File dataFile;
 
 void setup() {
   SystemInitialize();
-  //LoadSettings();
   digitalWrite(GPSpower,HIGH);
   gpsPort.begin(GPS_BAUD);
-  Blink(REDLED);
-  Blink(GREENLED);
-  digitalWrite(GREENLED,HIGH);
-  digitalWrite(REDLED,HIGH);
-  delay(50);
-  Blink(REDLED);
-  Blink(GREENLED);
-  
 }
 
 
@@ -113,7 +104,7 @@ void loop() {
         }
       }*/
       
-    if((int)fix.dateTime.hours>=BEGINNIGHT&&(int)fix.dateTime.hours<=ENDNIGHT)
+    if(fix.dateTime.hours==BEGINNIGHT)
     {
       Sleep(60*LONGSLEEP);
     }
@@ -239,23 +230,34 @@ void SystemInitialize()
       Blink(REDLED);
     }
   }
+  else
+  {
+    Blink(GREENLED);//1
+  }
+  LoadSettings();
+  digitalWrite(GREENLED,HIGH);
+  delay(1000);
+  digitalWrite(GREENLED,LOW);
+
+  
 }
 
 void LoadSettings()
 {
-  if (!SD.begin(SDCHIPSELECT)) // see if the card is present and can be initialized, also sets the object to hold onto that chip select pin
-  {  
-    //Serial.println("SD fail"); //Tell PC, can be commented out
-    //Serial.println("Halting...");
-    digitalWrite(GREENLED,LOW); 
-    digitalWrite(REDLED,HIGH); 
-    SD.end();
-    while(1);
-  }
-  if(dataFile = SD.open("settings.csv", FILE_READ))
+  int maxtries=5;
+  dataFile= SD.open("sett0ings.csv", FILE_READ);
+  while(!dataFile&&maxtries>0)
   {
+    maxtries--;
+    SD.end();
+    delay(200);
+    SD.begin(SDCHIPSELECT);
+    dataFile= SD.open("settings.csv", FILE_READ);
+  }
+  if(dataFile)
+  {
+     Blink(GREENLED);//2
   //Serial.println("Opening settings");
-
     //Serial.println(F("Terminal for GPS Collar MS-R1"));
     //Serial.println(F("Created 12/19/2018"));
     //Serial.println(F("Last code update on 1/16/2018"));
@@ -265,31 +267,41 @@ void LoadSettings()
     //Serial.print("Time Zone: ");
     //Serial.println(TIMEZONEADJ);
     SHORTSLEEP=NumFromSD();
+     Blink(GREENLED);
     //Serial.print("Minute Sleep: ");
     //Serial.println(SHORTSLEEP);
     LONGSLEEP=NumFromSD();
+     Blink(GREENLED);
     //Serial.print("Hour Sleep: ");
     //Serial.println(LONGSLEEP);
     BEGINNIGHT=NumFromSD();
+     Blink(GREENLED);
     //Serial.print("Night (24-hour): ");
     //Serial.println(BEGINNIGHT);
     ENDNIGHT=NumFromSD();
+     Blink(GREENLED);
     //Serial.print("Day (24-hour): ");
     //Serial.println(ENDNIGHT);
     //DESIREDHDOP=NumFromSD();
     //Serial.print("HDOP: ");
     //Serial.println(DESIREDHDOP);
     GPS_BAUD=NumFromSD();
+     Blink(GREENLED);
     //Serial.print("GPS baud rate: ");
     //Serial.println(GPSBaud);
     //Serialprinting=NumFromSD();
     ENDMONTH=NumFromSD();
+     Blink(GREENLED);
     //Serial.print("End Month: ");
     ENDDAY=NumFromSD();
+     Blink(GREENLED);
+    GPS_TIMEOUT=NumFromSD();
+    Blink(GREENLED);
   }
   else
   {
     //Serial.println("Settings not found, using default.");
+    Blink(REDLED);
   }
     dataFile.close();
   
@@ -299,13 +311,13 @@ int NumFromSD()
 {
   int ToReturn=0;
   int buf;
-  int num[4];
+  int num[5];
   int i=0,neg=0,j=0;
   while(dataFile.read()!=','); //read until ,
   do//begin extracting numbers
   {
     buf=dataFile.read(); //get char
-    if(buf!=13&&buf!='-'&&buf>=48&&buf<=57)
+    if(buf>=48&&buf<=57)
     {
     buf-=48; //convert char number to int number
     num[i]=buf; //store in array
@@ -321,7 +333,7 @@ int NumFromSD()
     {
       neg=1;
     }
-  } while(buf!=13);
+  } while(buf!=10);
   while(i>j)
   {
     ToReturn=ToReturn+num[j];
