@@ -40,6 +40,7 @@ __Note: for clarity, the side of the strap facing away from the animal when the 
 ![](hole_punching.png)
 
 5. Thread the buckle end of the strap through a buckle and secure with 3 Chicago screws. To avoid irritation to the animal, make sure that the tab end (e.g., the cut edge) of the strap is on the outside of the collar and that the smooth side of the Chicago screws is on the inside.
+![](buckle_install.png)
 
 6. Use the housing hole template to mark the location for the housing attachment holes on the outside face of the strap approximately 3 inches from where the cinch holes stop. Punch out these holes.
 ![](housing_hole_mark.gif)
@@ -49,3 +50,4 @@ __Note: for clarity, the side of the strap facing away from the animal when the 
 7. Use the housing hole template to mark the location of holes to drill on the PVC body housing, and drill these holes with a 3/16" drill bit in the drill press.
 
 8. Attach the PVC housing to the biothane strap using pop rivets. Make sure that the housing is on the outside face of the strap, and ensure that the pop-rivet heads on the inside of the strap are smooth and tight to the collar.
+![](housing_rivet.png)
