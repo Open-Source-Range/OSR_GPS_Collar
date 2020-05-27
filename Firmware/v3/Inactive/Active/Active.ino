@@ -13,7 +13,7 @@
 #define SDCHIPSELECT (8)
 #define GREENLED (LED1)
 #define REDLED (LED2)
-#include <NeoSWSerial.h>
+//#include <NeoSWSerial.h>
 #define ARDUINO_GPS_RX 3 // GPS TX, Arduino RX pin
 #define ARDUINO_GPS_TX 4 // GPS RX, Arduino TX pin
 #define Second 1000
