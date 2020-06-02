@@ -1,8 +1,15 @@
+/*
+ * Finalized gps code for board version 3.
+ * 
+ * 
+ */
+//Included Libraries
 #include <NMEAGPS.h>
 #include <SD.h>
 #include <SPI.h>
+#include <NeoSWSerial.h>
 
-
+//Defined Pins
 #define LED_PIN (5)
 #define RXPin (4)
 #define TXPin (3)
@@ -11,53 +18,58 @@
 #define GPSpower (2)
 #define SDCHIPSELECT (8)
 #define GREENLED (LED1)
-#define REDLED (LED2)
-#include <NeoSWSerial.h>
 #define ARDUINO_GPS_RX 3 // GPS TX, Arduino RX pin
 #define ARDUINO_GPS_TX 4 // GPS RX, Arduino TX pin
 #define Second 1000
+#define REDLED (LED2)
 
+//Prototypes
 void LoadSettings();
 void Blink(int pin);
 void SystemInitialize();
 void Sleep(int MinutesToSleep);
 int printGPSInfo(int);
 
+
+//objects
 NMEAGPS GPS;
 gps_fix fix;
 NeoSWSerial gpsPort(ARDUINO_GPS_TX, ARDUINO_GPS_RX);
-uint8_t SHORTSLEEP=20;  // in minutes
+File dataFile;
+
+//global settings
+uint8_t SHORTSLEEP=10;  // in minutes
 uint8_t LONGSLEEP=8;
 uint8_t BEGINNIGHT=25;
 uint8_t ENDNIGHT=25;
 int GPS_BAUD=9600;
 uint8_t ENDMONTH=-1;
 uint8_t ENDDAY=-1;
-unsigned long GPS_TIMEOUT   = 50; // 1 minutes
+unsigned long GPS_TIMEOUT   = 60000; // 1 minutes
+
+//changing globals
 unsigned long GPS_TIME      = 0;
 uint8_t turnGPSoff = 0;
 uint8_t waitingForFix = 1;
-File dataFile;
+
 
 void setup() {
-  SystemInitialize();
+  SystemInitialize();//required - also calls load settings
   digitalWrite(GPSpower,HIGH);
   gpsPort.begin(GPS_BAUD);
 }
 
 
 void loop() {
-  //digitalWrite(GREENLED,!digitalRead(GREENLED)); //heartbeat
-    
+  
   // Is a GPS fix available?*******************
   if (GPS.available( gpsPort )) 
   {
     fix = GPS.read();
-    Blink(GREENLED);
+    Blink(GREENLED); //serves as a heartbeat
     if (waitingForFix) 
     {
-      //Blink(REDLED);
-        if (fix.valid.location&&fix.valid.date&&fix.valid.time)
+        if (fix.valid.location&&fix.valid.date&&fix.valid.time)//is gps valid?
         {
           printGPSInfo(1);//Attempt to print
           waitingForFix = 0;
@@ -67,10 +79,9 @@ void loop() {
         {
           Blink(REDLED);
         }
-      //Serial.println( millis() - GPS_TIME ); // DEBUG
     }
   }
-  //***************************************
+
 
   
   // Have we waited too long for a GPS fix?
@@ -80,18 +91,14 @@ void loop() {
     turnGPSoff    = 1;
     Blink(REDLED);
     Blink(REDLED);
-    printGPSInfo(-1);//Attempt to print
+    printGPSInfo(-1);//Attempt to print a failure
   }
 
-  
-
-//******************************************
  
  //Sleep 
   if (turnGPSoff) 
   {
     digitalWrite(GPSpower, LOW);
-    //digitalWrite(REDLED,HIGH);
     /*if((int)fix.dateTime.month==ENDMONTH) Removed for now, plan to re-add after testing confirms this is not the error
       if((int)fix.dateTime.day==ENDDAY)
       {
@@ -119,17 +126,12 @@ void loop() {
     turnGPSoff    = 0;
     GPS_TIME=millis();
   }
-
-
-  //******************************
-  //delay(100);
 } // loop
 
 
 int printGPSInfo(int TimeOut)
 {
     int maxtries=10;
-    //Serial.println(fix.dateTime.hours);
     dataFile = SD.open("gpslog.csv", FILE_WRITE); //open SD
     while(!dataFile&&maxtries>0)
     {
@@ -138,7 +140,6 @@ int printGPSInfo(int TimeOut)
       delay(200);
       SD.begin(SDCHIPSELECT);
       dataFile = SD.open("gpslog.csv", FILE_WRITE);
-      //Blink(REDLED);
     }
     if (dataFile)
     {
@@ -202,6 +203,8 @@ void Sleep(int MinutesToSleep)
                 }
 }
 
+
+
 void Blink(int pin)
 {
   digitalWrite(pin,LOW);
@@ -242,6 +245,7 @@ void SystemInitialize()
   
 }
 
+
 void LoadSettings()
 {
   int maxtries=5;
@@ -256,51 +260,26 @@ void LoadSettings()
   }
   if(dataFile)
   {
-     Blink(GREENLED);//2
-  //Serial.println("Opening settings");
-    //Serial.println(F("Terminal for GPS Collar MS-R1"));
-    //Serial.println(F("Created 12/19/2018"));
-    //Serial.println(F("Last code update on 1/16/2018"));
-    //Serial.println(F("Beginning Startup..."));
-    //Serial.println(F("SD Card Detected"));
-    //TIMEZONEADJ=NumFromSD();
-    //Serial.print("Time Zone: ");
-    //Serial.println(TIMEZONEADJ);
+    Blink(GREENLED);
     SHORTSLEEP=NumFromSD();
-     Blink(GREENLED);
-    //Serial.print("Minute Sleep: ");
-    //Serial.println(SHORTSLEEP);
+    Blink(GREENLED);
     LONGSLEEP=NumFromSD();
-     Blink(GREENLED);
-    //Serial.print("Hour Sleep: ");
-    //Serial.println(LONGSLEEP);
+    Blink(GREENLED);
     BEGINNIGHT=NumFromSD();
-     Blink(GREENLED);
-    //Serial.print("Night (24-hour): ");
-    //Serial.println(BEGINNIGHT);
+    Blink(GREENLED);
     ENDNIGHT=NumFromSD();
-     Blink(GREENLED);
-    //Serial.print("Day (24-hour): ");
-    //Serial.println(ENDNIGHT);
-    //DESIREDHDOP=NumFromSD();
-    //Serial.print("HDOP: ");
-    //Serial.println(DESIREDHDOP);
+    Blink(GREENLED);
     GPS_BAUD=NumFromSD();
-     Blink(GREENLED);
-    //Serial.print("GPS baud rate: ");
-    //Serial.println(GPSBaud);
-    //Serialprinting=NumFromSD();
+    Blink(GREENLED);
     ENDMONTH=NumFromSD();
-     Blink(GREENLED);
-    //Serial.print("End Month: ");
+    Blink(GREENLED);
     ENDDAY=NumFromSD();
-     Blink(GREENLED);
+    Blink(GREENLED);
     GPS_TIMEOUT=NumFromSD();
     Blink(GREENLED);
   }
   else
   {
-    //Serial.println("Settings not found, using default.");
     Blink(REDLED);
   }
     dataFile.close();
