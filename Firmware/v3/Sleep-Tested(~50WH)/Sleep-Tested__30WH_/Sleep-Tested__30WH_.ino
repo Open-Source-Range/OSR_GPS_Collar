@@ -131,7 +131,7 @@ void loop() {
 
 int printGPSInfo(int TimeOut)
 {
-    int maxtries=10;
+    int maxtries=100;
     dataFile = SD.open("gpslog.csv", FILE_WRITE); //open SD
     while(!dataFile&&maxtries>0)
     {

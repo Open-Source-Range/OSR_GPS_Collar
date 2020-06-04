@@ -43,7 +43,7 @@ NeoSWSerial gpsPort(ARDUINO_GPS_TX, ARDUINO_GPS_RX);
 File dataFile;
 
 //global settings
-uint8_t SHORTSLEEP=10;  // in minutes
+uint8_t SHORTSLEEP=1;  // in minutes
 uint8_t LONGSLEEP=8;
 uint8_t BEGINNIGHT=25;
 uint8_t ENDNIGHT=25;
@@ -176,9 +176,10 @@ int printGPSInfo(int TimeOut)
       dataFile.print(",");
       dataFile.print(fix.dateTime.seconds);
       dataFile.print(",");
-      dataFile.print(fix.valid.satellites);
+      dataFile.print(fix.satellites);
       dataFile.print(",");
-      dataFile.print(fix.latitude(),10);dataFile.print(",");
+      dataFile.print(fix.latitude(),10);
+      dataFile.print(",");
       dataFile.println(fix.longitude(),10);
       
       dataFile.close(); 
