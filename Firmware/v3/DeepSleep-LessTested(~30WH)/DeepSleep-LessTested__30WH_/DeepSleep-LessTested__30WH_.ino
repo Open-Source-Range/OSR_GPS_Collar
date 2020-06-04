@@ -55,7 +55,6 @@ unsigned long GPS_TIMEOUT   = 60000; // 1 minutes
 //changing globals
 unsigned long GPS_TIME      = 0;
 uint8_t turnGPSoff = 0;
-uint8_t waitingForFix = 1;
 
 //Interrupts
 ISR (WDT_vect)
@@ -79,28 +78,27 @@ void loop() {
   {
     fix = GPS.read();
     Blink(GREENLED); //serves as a heartbeat
-    if (waitingForFix) 
+
+    if (fix.valid.location&&fix.valid.date&&fix.valid.time)//is gps valid?
     {
-        if (fix.valid.location&&fix.valid.date&&fix.valid.time)//is gps valid?
-        {
-          printGPSInfo(1);//Attempt to print
-          waitingForFix = 0;
-          turnGPSoff    = 1;
-        }
-        else
-        {
-          Blink(REDLED);
-        }
+      digitalWrite(GPSpower, LOW);
+      turnGPSoff    = 1;
+      printGPSInfo(1);//Attempt to print
     }
+    else
+    {
+      Blink(REDLED);
+    }
+   
   }
 
 
   
   // Have we waited too long for a GPS fix?
-  if (waitingForFix && (millis() - GPS_TIME > GPS_TIMEOUT)) 
+  if (millis() - GPS_TIME > GPS_TIMEOUT)
   {
-    waitingForFix = 0;
     turnGPSoff    = 1;
+    digitalWrite(GPSpower, LOW);
     Blink(REDLED);
     Blink(REDLED);
     printGPSInfo(-1);//Attempt to print a failure
@@ -134,7 +132,6 @@ void loop() {
     digitalWrite(GPSpower,HIGH);
     Blink(GREENLED);
      
-    waitingForFix = 1;
     turnGPSoff    = 0;
     GPS_TIME=millis();
   }
@@ -143,45 +140,49 @@ void loop() {
 
 int printGPSInfo(int TimeOut)
 {
-    int maxtries=10;
+    int maxtries=15;
+    SD.begin(SDCHIPSELECT);
     dataFile = SD.open("gpslog.csv", FILE_WRITE); //open SD
     while(!dataFile&&maxtries>0)
     {
       maxtries--;
+      dataFile.flush();
       SD.end();
-      delay(200);
+      delay(2000);
       SD.begin(SDCHIPSELECT);
       dataFile = SD.open("gpslog.csv", FILE_WRITE);
     }
     if (dataFile)
     {
       Blink(GREENLED); 
-      dataFile.print(String(TimeOut));
+      
+      dataFile.print(TimeOut);
       dataFile.print(",");
-      dataFile.print(String(fix.valid.location));
+      dataFile.print(fix.valid.location);
       dataFile.print(",");
-      dataFile.print(String(fix.valid.date));
+      dataFile.print(fix.valid.date);
       dataFile.print(",");
-      dataFile.print(String(fix.valid.time));
+      dataFile.print(fix.valid.time);
       dataFile.print(",");
-      dataFile.print(String(fix.dateTime.year));
+      dataFile.print(fix.dateTime.year);
       dataFile.print(",");
-      dataFile.print(String(fix.dateTime.month));
+      dataFile.print(fix.dateTime.month);
       dataFile.print(",");
-      dataFile.print(String(fix.dateTime.date));
+      dataFile.print(fix.dateTime.date);
       dataFile.print(",");
-      dataFile.print(String(fix.dateTime.hours));
+      dataFile.print(fix.dateTime.hours);
       dataFile.print(",");
-      dataFile.print(String(fix.dateTime.minutes));
+      dataFile.print(fix.dateTime.minutes);
       dataFile.print(",");
-      dataFile.print(String(fix.dateTime.seconds));
+      dataFile.print(fix.dateTime.seconds);
       dataFile.print(",");
-      dataFile.print(String(fix.valid.satellites));
+      dataFile.print(fix.valid.satellites);
       dataFile.print(",");
       dataFile.print(fix.latitude(),10);dataFile.print(",");
       dataFile.println(fix.longitude(),10);
-      dataFile.close();
-
+      
+      dataFile.close(); 
+      SD.end();
       return 1;
     }
   else
@@ -194,6 +195,7 @@ int printGPSInfo(int TimeOut)
     }
     for(int j=255;j>0;j--)
     {
+      analogWrite(REDLED,j);
       analogWrite(GREENLED,j);
       delay(5);
     }
@@ -273,7 +275,7 @@ void SystemInitialize()
   digitalWrite(GREENLED,HIGH);
   delay(1000);
   digitalWrite(GREENLED,LOW);
-
+  SD.end();
   
 }
 
@@ -289,7 +291,8 @@ void wdtInitialize()
 void LoadSettings()
 {
   int maxtries=5;
-  dataFile= SD.open("sett0ings.csv", FILE_READ);
+  
+  dataFile= SD.open("settings.csv", FILE_READ);
   while(!dataFile&&maxtries>0)
   {
     maxtries--;
