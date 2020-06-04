@@ -83,6 +83,7 @@ void loop() {
     {
         if (fix.valid.location&&fix.valid.date&&fix.valid.time)//is gps valid?
         {
+          delay(1000);
           printGPSInfo(1);//Attempt to print
           waitingForFix = 0;
           turnGPSoff    = 1;
@@ -176,9 +177,10 @@ int printGPSInfo(int TimeOut)
       dataFile.print(",");
       dataFile.print(String(fix.dateTime.seconds));
       dataFile.print(",");
-      dataFile.print(String(fix.valid.satellites));
+      dataFile.print(String(fix.satellites));
       dataFile.print(",");
-      dataFile.print(fix.latitude(),10);dataFile.print(",");
+      dataFile.print(fix.latitude(),10);
+      dataFile.print(",");
       dataFile.println(fix.longitude(),10);
       dataFile.close();
 
@@ -188,7 +190,7 @@ int printGPSInfo(int TimeOut)
   {
     for(int j=0;j<255;j++)
     {
-      analogWrite(GREENLED,j);
+      analogWrite(REDLED,j);
       analogWrite(GREENLED,j);
       delay(5);
     }
