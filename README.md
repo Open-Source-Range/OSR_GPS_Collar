@@ -7,7 +7,7 @@ This project has gone through several iterations, and each of these is described
 
 ## Repository Contents
 Information is divided into sections for:
- - [Hardware](Hardware/README.md) - GPS tracking device itself
+ - [Hardware](./Hardware/README.md) - GPS tracking device itself
  - [Firmware](Firmware/README.md) - Arduino code that runs on the device
  - [Battery](Battery/README.md) - one of several battery options for powering the devices
  - [Housing](Housing/README.md) - two options for low-cost housings
