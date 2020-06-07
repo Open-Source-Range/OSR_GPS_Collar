@@ -6,7 +6,6 @@ The [collarv52_2019-03-26.zip](./collarv52_2019-03-26.zip) file contains the Ger
 
  <br><img src="./v2_boardtop.png" width="50%" height="50%">
 
-
 ## Bill of materials
  - [collarv52_BOM.csv](collarv52_BOM.csv) - Bill of materials for all parts with DigiKey.com part numbers.
  - [collarv52_SMDBOM.xlsx](collarv52_SMDBOM.xlsx) - Bill of materials for just the SMD parts for upload to a PCB assembly service.

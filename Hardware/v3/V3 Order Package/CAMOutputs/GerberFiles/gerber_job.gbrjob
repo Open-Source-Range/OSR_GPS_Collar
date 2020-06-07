@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2020-05-01T05:58:59Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.5.2"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.57,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "SMTracker"
+        },
+        "Owner": "Matthew Shryock <shry9735@vandals.uidaho.edu>",
+        "Size": {
+            "X": 20.3,
+            "Y": 45.39
+        }
+    }
+}
