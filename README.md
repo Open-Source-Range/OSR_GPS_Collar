@@ -7,11 +7,11 @@ This project has gone through several iterations, and each of these is described
 
 ## Repository Contents
 Information is divided into sections for:
- - [Hardware](./Hardware/README.md) - GPS tracking device itself
- - [Firmware](Firmware/README.md) - Arduino code that runs on the device
- - [Battery](Battery/README.md) - one of several battery options for powering the devices
- - [Housing](Housing/README.md) - two options for low-cost housings
- - [Collar](Collar/README.md) - materials and construction of the collar
+ - [Hardware](Hardware) - GPS tracking device itself
+ - [Firmware](Firmware) - Arduino code that runs on the device
+ - [Battery](Battery) - one of several battery options for powering the devices
+ - [Housing](Housing) - two options for low-cost housings
+ - [Collar](Collar) - materials and construction of the collar
  - [Data](Data) - information on the structure of the recorded GPS data and scripts for processing and merging the GPS files
 
 ## Advantages of low-cost livestock GPS Tracking
@@ -38,7 +38,7 @@ Specifications, design information, and build instructions are available in the 
  - Karl, J.W. 2020. [Livestock GPS collars for $40 - development of an open-hardware location tracker.](Publications\Karl_IgniteGPSCollar_SRM2020.pdf) Presentation at the 2020 Annual Meeting of the Society for Range Management Annual Meeting. Denver, CO.
 
  - Fletcher, Taylor., Jason W. Karl, Courtney Conway, Vincent Jansen, Eva Strand, Shane Roberts, and Paul Makela. 2020. [Use of Global Positioning System Collars to Assess the Impact of Livestock Grazing on the Greater Sage-Grouse](Publications\ICTWS_Poster_Fletcher.pdf). Poster presented at the Idaho Chapter of the Wildlife Society Annual Meeting. Moscow, ID.
- - Alexander Laurence-Traynor. 2020. [Determining appropriate field-based grazing intensity measurements for multi-scale rangeland management.](ALT_Thesis_Presentation.pdf) MS Thesis. University of Idaho, Moscow, ID.
+ - Alexander Laurence-Traynor. 2020. [Determining appropriate field-based grazing intensity measurements for multi-scale rangeland management.](Publications\ALT_Thesis_Presentation.pdf) MS Thesis. University of Idaho, Moscow, ID.
 
 ## Funding Acknowledgment
 Development of the Open Source Livestock GPS Collar was supported in part by a Conservation Innovation Grant from the Natural Resources Conservation Service, U.S. Department of Agriculture (grant number NR193A750008G005). Any opinions, findings, conclusions, or recommendations expressed in this publication are those of the author(s) and do not necessarily reflect the views of the U.S. Department of Agriculture.
