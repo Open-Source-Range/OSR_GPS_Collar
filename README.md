@@ -12,7 +12,7 @@ Information is divided into sections for:
  - [Battery](Battery/README.md) - one of several battery options for powering the devices
  - [Housing](Housing/README.md) - two options for low-cost housings
  - [Collar](Collar/README.md) - materials and construction of the collar
- - [Data](Data/README.md) - information on the structure of the recorded GPS data and scripts for processing and merging the GPS files
+ - [Data](Data) - information on the structure of the recorded GPS data and scripts for processing and merging the GPS files
 
 ## Advantages of low-cost livestock GPS Tracking
 
