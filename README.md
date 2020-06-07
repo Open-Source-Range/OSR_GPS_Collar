@@ -5,15 +5,16 @@ The Open Source Range GPS collar was developed to be a low-cost solution to coll
 
 This project has gone through several iterations, and each of these is described here. All design files, sources, and assembly instructions are included.
 
+## Repository Contents
 Information is divided into sections for:
- - [Hardware](Hardware\README.md) - GPS tracking device itself
- - [Firmware](Firmware\README.md) - Arduino code that runs on the device
- - [Battery](Battery\README.md) - one of several battery options for powering the devices
- - [Housing](Housing\README.md) - two options for low-cost housings
- - [Collar](Collar\README.md) - materials and construction of the collar
- - [Data](Data\README.md) - information on the structure of the recorded GPS data and scripts for processing and merging the GPS files
+ - [Hardware](Hardware/README.md) - GPS tracking device itself
+ - [Firmware](Firmware/README.md) - Arduino code that runs on the device
+ - [Battery](Battery/README.md) - one of several battery options for powering the devices
+ - [Housing](Housing/README.md) - two options for low-cost housings
+ - [Collar](Collar/README.md) - materials and construction of the collar
+ - [Data](Data/README.md) - information on the structure of the recorded GPS data and scripts for processing and merging the GPS files
 
-### Advantages of low-cost livestock GPS Tracking
+## Advantages of low-cost livestock GPS Tracking
 
 ![Time lapse movement clip](Zumwalt_cow_timelapse.gif)
 
@@ -24,7 +25,7 @@ For full example videos, check out the following links:
 __Estimates of grazing intensity__
 ![](grazing_intensity.png)
 
-### System Overview
+## System Overview
 The core of these low-cost GPS units is an ATMEGA328P Arduino microcontroller. For the COTS units, this is an Arduino Pro Mini clone. For the Version 2 and 3 collars, it is an ATMEGA328P chip with the Arduino bootloader installed. The GPS is a standard UBLOX Neo GPS. Data are recorded to either a Micro SD card or a flash memory chip. The COTS GPS device uses an AdaFruit low-power timer breakout board for simple low-power operation/cycling. Versions 2 and 3 use software timing for low-power operation. The whole device is powered by a 3.7V lithium ion battery running through a voltage regulator.
 
 Specifications, design information, and build instructions are available in the folder for each version.
@@ -39,5 +40,5 @@ Specifications, design information, and build instructions are available in the 
  - Fletcher, Taylor., Jason W. Karl, Courtney Conway, Vincent Jansen, Eva Strand, Shane Roberts, and Paul Makela. 2020. [Use of Global Positioning System Collars to Assess the Impact of Livestock Grazing on the Greater Sage-Grouse](Publications\ICTWS_Poster_Fletcher.pdf). Poster presented at the Idaho Chapter of the Wildlife Society Annual Meeting. Moscow, ID.
  - Alexander Laurence-Traynor. 2020. [Determining appropriate field-based grazing intensity measurements for multi-scale rangeland management.](ALT_Thesis_Presentation.pdf) MS Thesis. University of Idaho, Moscow, ID.
 
-### Funding Acknowledgment
+## Funding Acknowledgment
 Development of the Open Source Livestock GPS Collar was supported in part by a Conservation Innovation Grant from the Natural Resources Conservation Service, U.S. Department of Agriculture (grant number NR193A750008G005). Any opinions, findings, conclusions, or recommendations expressed in this publication are those of the author(s) and do not necessarily reflect the views of the U.S. Department of Agriculture.
