@@ -7,13 +7,15 @@ sleep=3*5 #Expected idle wattage
 ontime=1
 offtime=10
 Expected=ObservedPeak*(ontime)/(ontime+offtime)+sleep*(offtime)/(ontime+offtime)
+DataPerSecond=1
 
-df = pd.read_csv(r'C:\Users\Mat\Downloads\328t2-110.csv')
+
+df = pd.read_csv(r'C:\Users\Mat\Downloads\day1.csv')
 df.head()
 
 sums=df.sum()
 count=df.max()
-mWH=(sums[1]/(count[0]/.1))*1000
+mWH=(sums[1]/(count[0]/DataPerSecond))*1000
 line1="Expected: "+str(round(Expected,1))+"mWH based on observed behavior in worst case."
 line2="Got: "+str(round(mWH,1))+"mWH."
 
