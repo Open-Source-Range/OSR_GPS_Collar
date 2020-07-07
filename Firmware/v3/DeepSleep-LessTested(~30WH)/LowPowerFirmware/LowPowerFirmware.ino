@@ -49,7 +49,7 @@
 #define REDLED (LED2)
 #define ARDUINO_GPS_RX 3 // These may get swapped between gps brands. Beitian has RX on 3 TX on 4
 #define ARDUINO_GPS_TX 4 // 
-
+#define SECONDS 1000
 
 
 //Prototypes
@@ -318,7 +318,7 @@ void LoadSettings()
     Blink(GREENLED);
     ENDDAY=NumFromSD();
     Blink(GREENLED);
-    GPS_TIMEOUT=NumFromSD();
+    GPS_TIMEOUT=NumFromSD()*SECONDS;
     Blink(GREENLED);
   }
   else
