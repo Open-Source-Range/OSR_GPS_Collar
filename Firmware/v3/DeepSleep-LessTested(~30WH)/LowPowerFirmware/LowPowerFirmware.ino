@@ -49,7 +49,7 @@
 #define REDLED (LED2)
 #define ARDUINO_GPS_RX 3 // These may get swapped between gps brands. Beitian has RX on 3 TX on 4
 #define ARDUINO_GPS_TX 4 // 
-#define SECONDS 1000
+
 
 
 //Prototypes
@@ -67,14 +67,13 @@ NeoSWSerial gpsPort(ARDUINO_GPS_TX, ARDUINO_GPS_RX);
 File dataFile;
 
 //global settings
-uint8_t SHORTSLEEP=10;  // in minutes
+uint8_t SHORTSLEEP=3;  // in minutes
 uint8_t LONGSLEEP=8;
 uint8_t BEGINNIGHT=25;
-uint8_t ENDNIGHT=25;
 int GPS_BAUD=9600;
 uint8_t ENDMONTH=-1;
 uint8_t ENDDAY=-1;
-unsigned long GPS_TIMEOUT   = 60000; // 1 minutes
+unsigned long GPS_TIMEOUT   = 60; // 1 minutes
 
 //changing globals
 unsigned long GPS_TIME      = 0;
@@ -92,6 +91,7 @@ void setup() {
   wdtInitialize();//required for deep sleep
   digitalWrite(GPSpower,HIGH);
   gpsPort.begin(GPS_BAUD);
+  GPS_TIME=millis();
 }
 
 
@@ -119,7 +119,7 @@ void loop() {
 
   
   // Have we waited too long for a GPS fix?
-  if (millis() - GPS_TIME > GPS_TIMEOUT)
+  if (millis() - GPS_TIME > (GPS_TIMEOUT*1000))
   {
     turnGPSoff    = 1;
     digitalWrite(GPSpower, LOW);
@@ -223,11 +223,9 @@ void DeepSleep(int MinutesToSleep)
   sei();//enable interrupts
   for(int sec=0, minutes=0;minutes<MinutesToSleep;sec+=8) //Actual waiting happens here
   {
-    reference=millis();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
     sleep_mode();
     sleep_disable();
-    sec+=(millis()-reference)/1000;
     while(sec>=60)
     {
       minutes++;
@@ -310,15 +308,13 @@ void LoadSettings()
     Blink(GREENLED);
     BEGINNIGHT=NumFromSD();
     Blink(GREENLED);
-    ENDNIGHT=NumFromSD();
-    Blink(GREENLED);
     GPS_BAUD=NumFromSD();
     Blink(GREENLED);
     ENDMONTH=NumFromSD();
     Blink(GREENLED);
     ENDDAY=NumFromSD();
     Blink(GREENLED);
-    GPS_TIMEOUT=NumFromSD()*SECONDS;
+    GPS_TIMEOUT=NumFromSD();
     Blink(GREENLED);
   }
   else
