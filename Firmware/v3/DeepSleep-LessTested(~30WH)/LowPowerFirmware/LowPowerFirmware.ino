@@ -15,15 +15,16 @@
  * -Is there data in the GPS port? if so read it and blink to inform the user.
  *      -Is the data valid? If so print to the SD with a valid tag, turn off the GPS, and signal sleep/not waiting
  * 
- * -Are we still waiting for data? Have we waited too long? If so print a failure with whatever data we DO have blink red twice to indicate failure. Also turn off power.
+ * -Have we waited too long? If so print a failure with whatever data we DO have blink red twice to indicate failure. Also turn off power. The first cell on the log file inidcates this happening
  * 
  * 
- * -Are we ready to sleep? If so turn off GPS (to make sure, though it is likely redundant), then prep the system be clearing the interrupts that have triggered, and re-enabling them.
+ * -Are we ready to sleep? If so turn off GPS, then prep the system be clearing the interrupts that have triggered, and re-enabling them.
+ *      -determine type of sleep: forever, long, or regular.
  *      -Set sleep mode and then go to sleep.
  *      -Wake on WDT Interrupt.
  *      -Compare how long device has slept to settings file / defaults.
  *      -Have we slept long enough?
- *            -Wake and reset flags to continue again
+ *      -Wake and reset flags to continue again
  *            
  * 
  */
@@ -102,7 +103,6 @@ void loop() {
   {
     fix = GPS.read();
     Blink(GREENLED); //serves as a heartbeat
-
     if (fix.valid.location&&fix.valid.date&&fix.valid.time)//is gps valid?
     {
       digitalWrite(GPSpower, LOW);
@@ -113,7 +113,6 @@ void loop() {
     {
       Blink(REDLED);
     }
-   
   }
 
 
@@ -133,19 +132,30 @@ void loop() {
   if (turnGPSoff) 
   {
     digitalWrite(GPSpower, LOW);
-      
-    if(fix.dateTime.hours==BEGINNIGHT)
+    if(fix.dateTime.date==ENDDAY&&fix.dateTime.month==ENDMONTH&&ENDDAY!=-1&&ENDMONTH!=-1)//Date for the unit to shut down. the nots are just to avoid accidental trigger
+    {
+      while(true)
+      {
+        DeepSleep(1);
+        Blink(REDLED);
+        Blink(REDLED);
+        Blink(GREENLED);
+        Blink(REDLED);
+        Blink(REDLED);  
+      }
+    }
+    if(fix.dateTime.hours==BEGINNIGHT)//overnight sleep
     {
       DeepSleep(60*LONGSLEEP);
     }
     else
     {
-      DeepSleep(SHORTSLEEP);
+      DeepSleep(SHORTSLEEP);//regular sleep
     }
     digitalWrite(GPSpower,HIGH);
     Blink(GREENLED);
      
-    turnGPSoff    = 0;
+    turnGPSoff    = 0;//reset
     GPS_TIME=millis();
   }
 } // loop
@@ -215,7 +225,7 @@ int printGPSInfo(int TimeOut)
     }
     return 0;
   }
-}
+}//printGPS info
 
 void DeepSleep(int MinutesToSleep)
 {
@@ -235,7 +245,7 @@ void DeepSleep(int MinutesToSleep)
   cli();//disable interrupts
   power_all_enable();
   power_adc_disable();//We still don't need this but I think power all re-enables it. Need to go through and individually power on what's needed.
-}
+}//Deepsleep
 
 void Blink(int pin)
 {
@@ -245,8 +255,7 @@ void Blink(int pin)
   delay(100);
   digitalWrite(pin,LOW);
   delay(100);
-
-}
+}//blink
 
 void SystemInitialize()
 {
@@ -262,7 +271,7 @@ void SystemInitialize()
     SD.end();
     while(1)
     {
-      Blink(REDLED);
+      Blink(REDLED);//no SD card
     }
   }
   else
@@ -275,7 +284,7 @@ void SystemInitialize()
   digitalWrite(GREENLED,LOW);
   SD.end();
   
-}
+}//system init
 
 void wdtInitialize()
 {
@@ -284,14 +293,14 @@ void wdtInitialize()
   WDTCSR |= 0b00011000; // using an OR leaves most bits unchanged while setting WDCE and WDE for config mode. See datasheet for details on those.
   WDTCSR =  0b01000000 | 0b100001; //WDIE - enable interrupt, WDE - disable reset on interrupt. the right half sets the delay to 8 seconds.
   sei();//enable interrupts
-}
+}//wdt init
 
 void LoadSettings()
 {
   int maxtries=5;
   
   dataFile= SD.open("settings.csv", FILE_READ);
-  while(!dataFile&&maxtries>0)
+  while(!dataFile&&maxtries>0)//error detected,or settings doesn't exist
   {
     maxtries--;
     SD.end();
@@ -302,28 +311,28 @@ void LoadSettings()
   if(dataFile)
   {
     Blink(GREENLED);
-    SHORTSLEEP=NumFromSD();
+    SHORTSLEEP=NumFromSD();//short sleep in minutes
     Blink(GREENLED);
-    LONGSLEEP=NumFromSD();
+    LONGSLEEP=NumFromSD();//overnight sleep in hours
     Blink(GREENLED);
-    BEGINNIGHT=NumFromSD();
+    BEGINNIGHT=NumFromSD();//UTC time to start overnight sleep
     Blink(GREENLED);
-    GPS_BAUD=NumFromSD();
+    GPS_BAUD=NumFromSD();//set baud rate to include different gps units
     Blink(GREENLED);
-    ENDMONTH=NumFromSD();
+    ENDMONTH=NumFromSD();//what month to stop logging, -1 disables (in either)
     Blink(GREENLED);
-    ENDDAY=NumFromSD();
+    ENDDAY=NumFromSD();//what day to stop logging, -1 disables (in either)
     Blink(GREENLED);
-    GPS_TIMEOUT=NumFromSD();
+    GPS_TIMEOUT=NumFromSD(); //how long to wait, in seconds. rounds to the whole second
     Blink(GREENLED);
   }
   else
   {
-    Blink(REDLED);
+    Blink(REDLED);//settings file doesn't exist
   }
     dataFile.close();
   
-}
+}//load settings
 
 int NumFromSD()
 {
@@ -362,4 +371,4 @@ int NumFromSD()
       ToReturn=ToReturn*-1;
     }
   return(ToReturn);
-}
+}//num from sd

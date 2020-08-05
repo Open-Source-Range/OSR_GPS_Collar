@@ -1,11 +1,11 @@
 {
     "Header": {
         "Comment": "All values are metric (mm)",
-        "CreationDate": "2020-05-01T05:58:59Z",
+        "CreationDate": "2020-07-13T01:06:10Z",
         "GenerationSoftware": {
             "Application": "EAGLE",
             "Vendor": "Autodesk",
-            "Version": "9.5.2"
+            "Version": "9.6.2"
         },
         "Part": "Single"
     },
@@ -17,8 +17,8 @@
         },
         "Owner": "Matthew Shryock <shry9735@vandals.uidaho.edu>",
         "Size": {
-            "X": 20.3,
-            "Y": 45.39
+            "X": 20.32,
+            "Y": 48.26
         }
     }
 }
