@@ -48,8 +48,8 @@
 #define SDCHIPSELECT (8)
 #define GREENLED (LED1)
 #define REDLED (LED2)
-#define ARDUINO_GPS_RX 4 // These may get swapped between gps brands. Beitian has RX on 3 TX on 4
-#define ARDUINO_GPS_TX 3 // 
+#define ARDUINO_GPS_RX 3 // These may get swapped between gps brands. Beitian has RX on 3 TX on 4
+#define ARDUINO_GPS_TX 4 // 
 
 
 
@@ -68,7 +68,7 @@ NeoSWSerial gpsPort(ARDUINO_GPS_TX, ARDUINO_GPS_RX);
 File dataFile;
 
 //global settings
-uint8_t SHORTSLEEP=9;  // in minutes
+uint8_t SHORTSLEEP=1;  // in minutes
 uint8_t LONGSLEEP=8;
 uint8_t BEGINNIGHT=25;
 int GPS_BAUD=9600;
