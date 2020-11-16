@@ -13,7 +13,7 @@ The two variations of the Version 3 device are slightly different in their desig
 ## Device Version 3.0
 The version 3.0 device has the GPS antenna, SD card, USB charging port (power only, no data transfer), and battery connector on the front of the board. The back of the board holds the solar connector and the diagnostic LEDs for the device itself (main status LEDs) and the GPS receiver.
 
-![](3-0_Anatomy.png | width=350)
+![](3-0_Anatomy.png)
 
 Upon plugging in the battery, the device will run diagnostic checks of the SD card and the GPS. If no SD card is inserted or the card (or card reader) is faulty, the device will give a constantly-blinking red LED light.
 
