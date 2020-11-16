@@ -1,8 +1,7 @@
 Short Sleep (minutes),9
-Long Sleep (hours),7
+Long Sleep (hours),6
 Begin Night (UTC hour),5
-End Night (UTC hour),11
 GPS Baud,9600
 End Month,35
 End Day,35
-GPS timeout (ms) ,60000
+GPS timeout (s) ,60

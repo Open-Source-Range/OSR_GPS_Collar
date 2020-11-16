@@ -1,28 +1,24 @@
 ### Merge GPS Collar Files
 library(stringr)
 library(lubridate)
-library(ggplot2)
+library(dplyr)
 
-in.path <- "C:\\Users\\jakal\\OneDrive - University of Idaho\\GPS_Collars\\2020_Collar_Data\\Ken_Nelson_GPS_Data"
-out.file <- "KenNelson2020_Merged.csv"
-latbounds <- c(44.3,45.38)
-lonbounds <- c(-113.65,-113.51)
-datebounds <- c("2020-05-28","2020-07-11")
+in.path <- "C:\\Users\\jakal\\OneDrive - University of Idaho\\GPS_Collars\\2020_Collar_Data\\Zumwalt"
+out.file <- "Zumwalt2020_Merged.csv"
+latbounds <- c(45.5,45.65)
+lonbounds <- c(-117.1,-116.83)
 distance.cutoff <- 840 #meters. From Knight processing instructions
+velocity.cutoff <- 20 #m/s - Very fast cows!!
 
-
-# Generate list of files
 files <- list.files(in.path,pattern="*GPSLOG.CSV")
 
-# setup empty data frame to hold results
 merged.data <- data.frame()
 
-# load and merge data files
 for (f in files) {
   data <- read.csv(paste(in.path,f,sep="\\"),header=F,stringsAsFactors = F)
   collar.id <- str_split(f,"[.]")[[1]][1]
   data$collar.id <- collar.id
-  names(data)<-c("year","month","day","hour","min","sec","status","lat","lon","collar")
+  names(data)<-c("timeout","locvalid","datevalid","timevalid","year","month","day","hour","min","sec","sats","lat","lon","collar")
   merged.data <- rbind(merged.data,data)
   print(f)
 }
@@ -51,9 +47,6 @@ merged.data$local.datetime <- with_tz(utc.datetime,tzone="America/Denver")
 ## remove rows that don't have a date/time
 merged.data <- na.omit(merged.data, cols="utc.datetime")
 
-## remove points outside of date range
-merged.data <- merged.data %>% filter(local.datetime >= datebounds[1] & local.datetime <= datebounds[2])
-
 # Calc travel velocity between successive points
 filtered.data <- data.frame()
 collars <- unique(merged.data$collar)
@@ -72,19 +65,8 @@ for (collar.id in collars) {
 
 # Remove points greater than the distance cutoff
 filtered.data <- filtered.data %>% filter(traveldist < distance.cutoff)
-#filtered.data <- filtered.data %>% filter(travelvelocity < velocity.cutoff)
+filtered.data <- filtered.data %>% filter(travelvelocity < velocity.cutoff)
 
 # Write out the results
 write.csv(filtered.data,paste(in.path,out.file,sep="\\"),col.names=T)
-
-## Summary stats
-# collar points per day
-filtered.data$yday <- yday(filtered.data$local.datetime)
-collar.sums <- filtered.data %>% group_by(collar) %>% summarise(firstday=min(yday),lastday=max(yday),npoints=n())
-collar.sums$duration <- collar.sums$lastday - collar.sums$firstday
-collar.sums$infodens <- collar.sums$npoints / collar.sums$duration
-ggplot(data=collar.sums)+geom_histogram(aes(x=infodens))
-ggplot(data=collar.sums)+geom_bar(aes(x=collar,y=infodens))
-
-
 
