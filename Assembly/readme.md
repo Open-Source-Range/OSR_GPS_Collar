@@ -1,7 +1,7 @@
 # Assembly and Operation Instructions
 Assembly and operation of the GPS devices is pretty straightforward. Once the device is powered by the battery, it is running (i.e., there are no on/off switches or reset buttons). Diagnostic lights on the device will let you know it's status. The general operating steps are as follows:
 1. Make sure battery is fully charged.
-2. Load the settings.csv file on the SD card and remove any pre-existing GPSLOG.csv file (though the device will just append any new data onto the end of an existing file). Specifications for the settings.csv file (and example file) can be found in the [v3 firmware section](Firmware/v3/README.md).
+2. Load the settings.csv file on the SD card and remove any pre-existing GPSLOG.csv file (though the device will just append any new data onto the end of an existing file). Specifications for the settings.csv file (and example file) can be found in the [v3 firmware section](../Firmware/v3/README.md).
 3. Insert the SD card into the device and ensure that it is seated properly.
 4. Plug in the battery and watch the initialization LED sequence to ensure proper functioning. The battery connector has a ridge on it that ensures it can only be plugged in one way. Note: the device will function if the battery is plugged into the solar panel connector, but the battery life will be much shorter because the power from that port flows through the charge circuit first.
 5. Plug in the solar panel. The device cannot operate solely on solar power (sorry!).
@@ -37,4 +37,4 @@ Green blinking main status LED and blue blinking GPS LED mean the device is awai
 ![](3-1_normal_op.gif)  
 
 ## Data download
-Once the collars have been retrieved, remove the device and carefully unplug the solar panel and battery. Remove the SD card and use a SD card reader to insert it into a computer. The GPS data will be stored in a GPSLOG.csv file. Specifications for the data file are on the [Data V3 page](Data/V3/README.md).
+Once the collars have been retrieved, remove the device and carefully unplug the solar panel and battery. Remove the SD card and use a SD card reader to insert it into a computer. The GPS data will be stored in a GPSLOG.csv file. Specifications for the data file are on the [Data V3 page](../Data/V3/README.md).
