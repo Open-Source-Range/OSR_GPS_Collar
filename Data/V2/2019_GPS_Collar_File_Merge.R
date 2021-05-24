@@ -1,14 +1,15 @@
-### Merge GPS Collar Files
+# Merge GPS Collar Files
 library(stringr)
 library(lubridate)
 library(ggplot2)
+library(geosphere)
 
-in.path <- "C:\\Users\\jakal\\OneDrive - University of Idaho\\GPS_Collars\\2020_Collar_Data\\Ken_Nelson_GPS_Data"
-out.file <- "KenNelson2020_Merged.csv"
-latbounds <- c(44.3,45.38)
-lonbounds <- c(-113.65,-113.51)
-datebounds <- c("2020-05-28","2020-07-11")
-distance.cutoff <- 840 #meters. From Knight processing instructions
+in.path <- "C:\\Users\\jakal\\OneDrive - University of Idaho\\GPS_Collars\\2020_Collar_Data\\Cody_Morgan_GPS_Data"
+out.file <- "CodyMorgan2020_Merged.csv"
+latbounds <- c(44.3,44.6)
+lonbounds <- c(-113.9,-113.7)
+datebounds <- c("2020-04-20","2020-07-11")
+distance.cutoff <- 840 # meters. From Knight processing instructions
 
 
 # Generate list of files

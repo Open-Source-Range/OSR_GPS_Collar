@@ -1,14 +1,29 @@
-### Merge GPS Collar Files
+### Merge GPS Collar Files from the Version 3 Open-source Range GPS Collar device
+"""
+This script will input all of the GPSLOG.CSV files in a specified input directory, merge them together, and perform some
+basic cleaning and filtering operations. It is best to add the collar ID number or some other unique collar identifier before
+the GPSLOG.CSV part of the file name, but the file name must end with GPSLOG.CSV. This script will remove zero values, format
+dates and times and convert to local time zone, and do some initial filtering by latitude/longitude box and travel distance/time
+to remove spurious points. Output is a formatted CSV file than can be easily converted to point locations in ArcGIS or QGIS.
+"""
+
+## Load Libraries
 library(stringr)
 library(lubridate)
 library(dplyr)
 
-in.path <- "C:\\Users\\jakal\\OneDrive - University of Idaho\\GPS_Collars\\2020_Collar_Data\\Zumwalt"
-out.file <- "Zumwalt2020_Merged.csv"
-latbounds <- c(45.5,45.65)
-lonbounds <- c(-117.1,-116.83)
-distance.cutoff <- 840 #meters. From Knight processing instructions
-velocity.cutoff <- 20 #m/s - Very fast cows!!
+### Input parameters
+#### NOTE: The script below will add the name of the input GPSLOG files to table for the GPS points and combine all GPSLOG.CSV
+####       files into a single output file. It is best to prepend the GPS unit ID or some other unique ID before the GPSLOG.CSV
+####       file name to maintain the unique collar identity of the points. e.g., 20027_GPSLOG.CSV.
+
+in.path <- "C:\\Users\\jakal\\OneDrive - University of Idaho\\GPS_Collars\\2020_Collar_Data\\Cody_Morgan_GPS_Data" # Directory of input GPSLOG.CSV files
+out.file <- "CodyMorgan2020_Merged.csv" # output CSV file name (will be saved in same directory as input files)
+local.time.zone <- "America/Denver" # local time zone. "America/Los_Angeles" is valid code for pacific time zone. See https://www.rdocumentation.org/packages/lubridate/versions/1.7.4/topics/tz for more info.
+latbounds <- c(45.5,45.65) # Exclude points outside of a latitude/longitude boundary. Set to c(-90,90) to turn off
+lonbounds <- c(-117.1,-116.83) # Exclude points outside of a latitude/longitude boundary. Set to c(-180,180) to turn off
+distance.cutoff <- 840 # Remove points where distance between successive points is greater than threshold value (in meters). From Knight processing instructions. Set to very large number to turn off
+velocity.cutoff <- 20 # Remove points with calculated velocity (in m/s) above threshold - Very fast cows!! Set to very large number to disable
 
 files <- list.files(in.path,pattern="*GPSLOG.CSV")
 
@@ -42,7 +57,7 @@ merged.data <- merged.data %>% filter(lon > lonbounds[1] & lon < lonbounds[2])
 datetime.string <- str_c(merged.data$year,merged.data$month,merged.data$day,merged.data$hour,merged.data$min,merged.data$sec,sep="-")
 utc.datetime <- parse_date_time(datetime.string,"y-m-d-H-M-S",tz="UTC")
 merged.data$utc.datetime <- utc.datetime
-merged.data$local.datetime <- with_tz(utc.datetime,tzone="America/Denver")
+merged.data$local.datetime <- with_tz(utc.datetime,tzone=local.time.zone)
 
 ## remove rows that don't have a date/time
 merged.data <- na.omit(merged.data, cols="utc.datetime")
