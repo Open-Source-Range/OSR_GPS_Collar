@@ -10,6 +10,9 @@ This section describes the sourcing and assembly of the GPS tracking devices. Pa
  - V3: third generation device from 2020 using all SMD parts and assembled via PCB service.
   ![](v3.png)
 
+   - V4: fourth generation device from 2023 using a modular microchip and on board memory.
+  
+
 ## PCB and Assembly Services
 There are countless different services (domestic and overseas) for creating PCBs and doing PCB assembly. We don't formally endorse any particular service, but we have used the ones listed below with good results.
  - [https://www.seeedstudio.com/fusion_pcb.html](SeeedStudios) Fusion PCB - good service, fast if using parts from their Open Parts Library. Slower if sourcing parts from DigiKey.
